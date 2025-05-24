@@ -1,0 +1,4 @@
+sqlalchemy>=0.20.1
+disnake>=2.10.1
+aiomysql>=0.2.0
+cryptography>=45.0.2
