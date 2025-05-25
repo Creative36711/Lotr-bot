@@ -38,7 +38,7 @@ def member_has_main_role(member: Member) -> bool:
 
 
 def get_role_id_member_should_have_if_balance(user_balance: int) -> Optional[int]:
-    roles_ids_user_deserves = [x.role_id for x in ROLES_REWARDS_BY_WITH_BALANCE if user_balance > x.min_balance]
+    roles_ids_user_deserves = [x.role_id for x in ROLES_REWARDS_BY_WITH_BALANCE if user_balance >= x.min_balance]
     return roles_ids_user_deserves[-1] if roles_ids_user_deserves else None
 
 
