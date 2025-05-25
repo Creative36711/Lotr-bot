@@ -60,7 +60,7 @@ async def add_roles(member: Member, roles_ids: Set[int]) -> str:
         await member.add_roles(*roles_to_add)
         added_roles_names = ', '.join([role.name for role in roles_to_add])
         logger.info(member.name + ' получает роли ' + added_roles_names)
-        return added_roles_names
+        return member.name + ' получает роли ' + added_roles_names
     return ''
 
 
