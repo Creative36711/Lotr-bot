@@ -15,7 +15,6 @@ logger = logging.getLogger(__name__)
 bot = commands.Bot(command_prefix="!", help_command=None, intents=disnake.Intents.default() | disnake.Intents.members | disnake.Intents.message_content)
 
 CHANNELS_WITH_REACTIONS = {
-    1363400552951578716, 1363402198263795802,
     1372570283994517584, 1372570325945942097,
     1374057088984023050, 1374057143983931544
 }
