@@ -63,6 +63,7 @@ async def on_raw_reaction_remove(payload):
         if member and member_has_main_role(member) and payload.message_author_id != payload.user_id:
             await request.delete_user_reaction(
                 message_id=payload.message_id,
+                user_id=payload.user_id
             )
             logger.info(
                 f'Реакция {member.name} на сообщение {payload.message_id} автора {payload.message_author_id} удалена'

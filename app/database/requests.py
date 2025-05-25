@@ -46,13 +46,13 @@ async def add_user_reaction(message_id: int, message_author_id: int, user_id: in
         )
 
 
-async def delete_user_reaction(message_id: int):
+async def delete_user_reaction(message_id: int, user_id: int):
     session: AsyncSession
     async with async_session.begin() as session:
         reaction: Reactions = (await session.execute(
             select(Reactions).with_for_update().where(Reactions.message_id == message_id)
         )).scalars().first()
-        if reaction:
+        if reaction and reaction.user_id == user_id:
             await session.delete(reaction)
             await session.execute(
                 update(Balance)
