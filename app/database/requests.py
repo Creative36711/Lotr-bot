@@ -17,7 +17,7 @@ async def ensure_balance(user_id: int, session: AsyncSession):
     )
     existing_balance = result.scalars().first()
     if not existing_balance:
-        insert(Balance).values(user_id=user_id, user_balance=0)
+        await session.execute(insert(Balance).values(user_id=user_id, user_balance=0))
 
 
 async def add_user_reaction(message_id: int, message_author_id: int, user_id: int):
