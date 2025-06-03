@@ -258,7 +258,7 @@ async def update_channel(ctx: commands.Context, channel_id: int, *, arg):
             params[k] = v == '1' or v.lower() == 'true'
     channel = await request.update_channel(channel_id, **params)
     await ctx.send(
-        str(channel) + ' ' + str(CHANNELS_CAN_ASK_BALANCE) + ' ' + str(CHANNELS_WITH_REACTIONS),
+        str(channel),
         delete_after=10,
     )
     await update_cached_values()
