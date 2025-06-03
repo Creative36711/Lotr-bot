@@ -38,7 +38,7 @@ class Balance(Base):
 class WatchedChannel(Base):
     __tablename__ = 'watched_channel'
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id = mapped_column(BigInteger, primary_key=True)
     can_ask_balance: Mapped[bool] = mapped_column(Boolean, default=False)
     reactions_tracked: Mapped[bool] = mapped_column(Boolean, default=False)
 
