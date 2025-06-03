@@ -39,7 +39,7 @@ async def update_channel(channel_id: int, can_ask_balance: bool = None, reaction
                 can_ask_balance=can_ask_balance if can_ask_balance is not None else False,
                 reactions_tracked=reactions_tracked if reactions_tracked is not None else False
             ))
-        return await get_channel_by_id(channel_id)
+    return await get_channel_by_id(channel_id)
 
 
 
