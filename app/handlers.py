@@ -2,24 +2,38 @@ import disnake
 from disnake.ext import commands
 
 import app.database.requests as request
+from app.database.models import create_all
 from datetime import datetime
 from app.roles import member_has_main_role, role_update
 import logging
 from disnake.guild import Member, Guild
 from disnake.mentions import AllowedMentions
 import random
+from urllib.parse import parse_qsl
 
 
 logger = logging.getLogger(__name__)
 
 bot = commands.Bot(command_prefix="!", help_command=None, intents=disnake.Intents.default() | disnake.Intents.members | disnake.Intents.message_content)
 
-CHANNELS_WITH_REACTIONS = {
-    1372570283994517584, 1372570325945942097,
-    1374057088984023050, 1374057143983931544
-}
+CHANNELS_WITH_REACTIONS = set()
+# 1372570283994517584, 1372570325945942097,
+# 1374057088984023050, 1374057143983931544
 
-CHANNELS_CAN_ASK_BALANCE = {1375209573526278195}
+
+async def update_channels_with_reactions():
+    global CHANNELS_WITH_REACTIONS
+    CHANNELS_WITH_REACTIONS = await request.get_channels_ids_with_reactions()
+
+
+CHANNELS_CAN_ASK_BALANCE = set()
+# 1375209573526278195
+
+
+async def update_channels_with_balance_ask():
+    global CHANNELS_CAN_ASK_BALANCE
+    CHANNELS_CAN_ASK_BALANCE = await request.get_channels_ids_with_balance_ask()
+
 
 ADMIN_USERS = {
     930442023423574049,
@@ -27,8 +41,15 @@ ADMIN_USERS = {
 }
 
 
+async def update_cached_values():
+    await update_channels_with_reactions()
+    await update_channels_with_balance_ask()
+
+
 @bot.event
 async def on_ready():
+    await create_all()
+    await update_cached_values()
     print(f"Бот {bot.user} готов к работе!")
 
 
@@ -212,4 +233,33 @@ async def update_roles_command(ctx: commands.Context):
             f"❌ Ничего не изменилось",
             delete_after=10,
         )
+
+
+@bot.command(name='канал', description='Получить свойства канала')
+async def show_channel_descr(ctx: commands.Context, channel_id: int):
+    if ctx.author.id not in ADMIN_USERS:
+        return
+
+    channel = await request.get_channel_by_id(channel_id)
+    await ctx.send(
+        str(channel),
+        delete_after=10,
+    )
+
+
+@bot.command(name='обновитьканал', description='Обновить свойства канала по ссылке')
+async def update_channel(ctx: commands.Context, channel_id: int, *, arg):
+    if ctx.author.id not in ADMIN_USERS:
+        return
+    params = dict()
+    expected_keys = ['can_ask_balance', 'reactions_tracked']
+    for k, v in parse_qsl(arg):
+        if k in expected_keys:
+            params[k] = bool(v)
+    channel = await request.update_channel(channel_id, **params)
+    await ctx.send(
+        str(channel),
+        delete_after=10,
+    )
+    await update_cached_values()
 

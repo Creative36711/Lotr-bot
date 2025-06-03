@@ -1,14 +1,62 @@
-from app.database.models import async_session, Reactions, Balance
+from app.database.models import async_session, Reactions, Balance, WatchedChannel
 from sqlalchemy import select, update, insert
 from datetime import datetime
 import logging
-from typing import List
+from typing import List, Set
 from sqlalchemy.ext.asyncio.session import AsyncSession
 
 
 logger = logging.getLogger(__name__)
 
 REACTION_COST = 10
+
+
+async def get_channel_by_id(channel_id: int) -> WatchedChannel:
+    async with async_session() as session:
+        existing_channel = (await session.execute(
+            select(WatchedChannel).where(WatchedChannel.id == channel_id)
+        )).scalars().first()
+        return existing_channel if existing_channel else None
+
+
+async def update_channel(channel_id: int, can_ask_balance: bool, reactions_tracked: bool) -> WatchedChannel:
+    async with async_session.begin() as session:
+        existing_channel = (await session.execute(
+            select(WatchedChannel).where(WatchedChannel.id == channel_id)
+        )).scalars().first()
+        if existing_channel:
+            await session.execute(
+                update(WatchedChannel)
+                .where(WatchedChannel.id == channel_id)
+                .values(
+                    can_ask_balance=can_ask_balance,
+                    reactions_tracked=reactions_tracked
+                )
+            )
+        else:
+            await session.execute(insert(WatchedChannel).values(
+                id=channel_id,
+                can_ask_balance=can_ask_balance,
+                reactions_tracked=reactions_tracked
+            ))
+        return await get_channel_by_id(channel_id)
+
+
+
+async def get_channels_ids_with_reactions() -> Set[int]:
+    async with async_session() as session:
+        channels = (await session.execute(
+            select(WatchedChannel).where(WatchedChannel.reactions_tracked is True)
+        )).scalars()
+        return {channel.id for channel in channels}
+
+
+async def get_channels_ids_with_balance_ask() -> Set[int]:
+    async with async_session() as session:
+        channels = (await session.execute(
+            select(WatchedChannel).where(WatchedChannel.can_ask_balance is True)
+        )).scalars()
+        return {channel.id for channel in channels}
 
 
 async def ensure_balance(user_id: int, session: AsyncSession):

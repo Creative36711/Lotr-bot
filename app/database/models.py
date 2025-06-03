@@ -1,7 +1,7 @@
 from datetime import datetime
 from sqlalchemy import Column, DateTime
 
-from sqlalchemy import BigInteger, Integer
+from sqlalchemy import BigInteger, Integer, Boolean
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.ext.asyncio import AsyncAttrs, async_sessionmaker, create_async_engine
 
@@ -35,6 +35,17 @@ class Balance(Base):
     balance_time = Column(DateTime, nullable=False, default=datetime.utcnow)
 
 
-async def async_main():
+class WatchedChannel(Base):
+    __tablename__ = 'watched_channel'
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    can_ask_balance: Mapped[bool] = mapped_column(Boolean, default=False)
+    reactions_tracked: Mapped[bool] = mapped_column(Boolean, default=False)
+
+    def __repr__(self):
+        return f'Channel[{self.id}] can_ask_balance={self.can_ask_balance} reactions_tracked={self.reactions_tracked}'
+
+
+async def create_all():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
