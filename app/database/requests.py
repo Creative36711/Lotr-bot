@@ -19,7 +19,7 @@ async def get_channel_by_id(channel_id: int) -> WatchedChannel:
         return existing_channel if existing_channel else None
 
 
-async def update_channel(channel_id: int, can_ask_balance: bool, reactions_tracked: bool) -> WatchedChannel:
+async def update_channel(channel_id: int, can_ask_balance: bool = None, reactions_tracked: bool = None) -> WatchedChannel:
     async with async_session.begin() as session:
         existing_channel = (await session.execute(
             select(WatchedChannel).where(WatchedChannel.id == channel_id)
@@ -29,15 +29,15 @@ async def update_channel(channel_id: int, can_ask_balance: bool, reactions_track
                 update(WatchedChannel)
                 .where(WatchedChannel.id == channel_id)
                 .values(
-                    can_ask_balance=can_ask_balance,
-                    reactions_tracked=reactions_tracked
+                    can_ask_balance=can_ask_balance if can_ask_balance is not None else existing_channel.can_ask_balance,
+                    reactions_tracked=reactions_tracked if reactions_tracked is not None else existing_channel.reactions_tracked,
                 )
             )
         else:
             await session.execute(insert(WatchedChannel).values(
                 id=channel_id,
-                can_ask_balance=can_ask_balance,
-                reactions_tracked=reactions_tracked
+                can_ask_balance=can_ask_balance if can_ask_balance is not None else False,
+                reactions_tracked=reactions_tracked if reactions_tracked is not None else False
             ))
         return await get_channel_by_id(channel_id)
 
