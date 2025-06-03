@@ -255,7 +255,7 @@ async def update_channel(ctx: commands.Context, channel_id: int, *, arg):
     expected_keys = ['can_ask_balance', 'reactions_tracked']
     for k, v in parse_qsl(arg):
         if k in expected_keys:
-            params[k] = bool(v)
+            params[k] = v == '1' or v.lower() == 'true'
     channel = await request.update_channel(channel_id, **params)
     await ctx.send(
         str(channel),
