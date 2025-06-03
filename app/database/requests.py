@@ -46,7 +46,7 @@ async def update_channel(channel_id: int, can_ask_balance: bool = None, reaction
 async def get_channels_ids_with_reactions() -> Set[int]:
     async with async_session() as session:
         channels = (await session.execute(
-            select(WatchedChannel).where(WatchedChannel.reactions_tracked is True)
+            select(WatchedChannel).where(WatchedChannel.reactions_tracked == True)
         )).scalars()
         return {channel.id for channel in channels}
 
@@ -54,7 +54,7 @@ async def get_channels_ids_with_reactions() -> Set[int]:
 async def get_channels_ids_with_balance_ask() -> Set[int]:
     async with async_session() as session:
         channels = (await session.execute(
-            select(WatchedChannel).where(WatchedChannel.can_ask_balance is True)
+            select(WatchedChannel).where(WatchedChannel.can_ask_balance == True)
         )).scalars()
         return {channel.id for channel in channels}
 
