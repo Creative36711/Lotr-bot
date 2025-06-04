@@ -263,3 +263,15 @@ async def update_channel(ctx: commands.Context, channel_id: int, *, arg):
     )
     await update_cached_values()
 
+
+@bot.command(name='пригласитьв', description='Обновить свойства канала по ссылке')
+async def update_channel(ctx: commands.Context, thread_id: int, user_id: int):
+    if ctx.author.id not in ADMIN_USERS:
+        return
+    thr = ctx.guild.get_thread(thread_id)
+    user = ctx.guild.get_member(user_id)
+    if thr:
+        print(f'Приглашаю пользователя {user_id} to {thread_id}')
+        await thr.add_user(user)
+    else:
+        await ctx.send("❌ Не найдено", delete_after=10)
