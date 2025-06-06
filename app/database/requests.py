@@ -135,7 +135,9 @@ async def get_all_balances() -> List[Balance]:
     session: AsyncSession
     async with async_session() as session:
         return (await session.execute(
-            select(Balance).order_by(Balance.user_id)
+            select(Balance)
+            .where(Balance.user_balance > 0)
+            .order_by(Balance.user_balance.desc())
         )).scalars().all()
 
 
