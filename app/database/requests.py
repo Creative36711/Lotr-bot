@@ -132,11 +132,13 @@ async def get_balance(user_id: int) -> int:
 
 
 async def get_all_balances() -> List[Balance]:
-    session: AsyncSession
     async with async_session() as session:
         return (await session.execute(
             select(Balance)
-            .where(Balance.user_balance > 0)
+            .where(
+                Balance.user_balance > 0,
+                Balance.user_balance < 100000
+            )
             .order_by(Balance.user_balance.desc())
         )).scalars().all()
 
