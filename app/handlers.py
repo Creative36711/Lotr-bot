@@ -197,15 +197,20 @@ async def table_command(ctx: commands.Context):
     all_balances = await request.get_all_balances()
 
     rows = []
+    total_balance = 0 
+
     for user_balance in all_balances:
         member = guild.get_member(user_balance.user_id)
         if not member:
             continue
         await role_update(member, user_balance.user_balance)
         rows.append(f'{member.name}: {user_balance.user_balance}')
+        total_balance += user_balance.user_balance
+
+    rows.append(f'### Общий баланс: {total_balance}')
 
     await ctx.send(
-        f"❌ **Участники**\n\n"+'\n'.join(rows),
+        f"🧑‍🤝‍🧑 **Участники**\n\n" + '\n'.join(rows),
     )
 
 
